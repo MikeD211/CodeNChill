@@ -1,0 +1,212 @@
+# ------------------------ Translating to Triangulese ------------------------
+
+def tri(in_s):
+    
+    out_s = ""
+    
+    count = 0
+    for lttr in in_s:
+        if lttr.isalpha():
+            for j in range(count+1):
+                if count==0:
+                    out_s+=lttr.upper()
+                else:
+                    out_s+=lttr
+            count+=1
+            out_s+="\n"
+        elif lttr.isspace(): count = 0
+    
+    return out_s
+
+in_s = "Hello, how are you?"
+print(tri(in_s))
+
+# ------------------------ Mapping the Pathway ------------------------
+
+
+def pathway(in_s):
+    arr = []
+    
+    Y = 0
+    X = in_s[0].index("S")
+    
+    # the abs(Y-9) is used so that the recorded Y value matches the diagram
+    arr.append((X,abs(Y-9)))
+    
+    Y = 1 # will always be directly beneath start
+    
+    itm = in_s[Y][X]
+    #print('"'+itm+'"')
+    arr.append((X,abs(Y-9)))
+    
+    while itm!="E":
+        
+        b = True
+        
+        # check left
+        if X-1 > -1 and b: # make sure you're not at the very left
+            if in_s[Y][X-1]!="X" and (X-1,abs(Y-9)) not in arr:
+                #print('"'+in_s[Y][X-1]+'"')
+                X-=1
+                b = False
+        
+        # check right
+        if X+1 < 10 and b: # make sure you're not at the very right
+            if in_s[Y][X+1]!="X" and (X+1,abs(Y-9)) not in arr:
+                #print('"'+in_s[Y][X+1]+'"')
+                X+=1
+                b = False
+        
+        # check down
+        if Y+1 < 10 and b: # make sure you're not at the very bottom
+            if in_s[Y+1][X]!="X"  and (X,abs(Y-8)) not in arr:
+                #print('"'+in_s[Y+1][X]+'"')
+                Y+=1
+                b = False
+        
+        # check up
+        if Y-1 > -1 and b: # make sure you're not at the very top
+            if in_s[Y-1][X]!="X"  and (X,abs(Y-10)) not in arr:
+                #print('"'+in_s[Y-1][X]+'"')
+                Y-=1
+                b = False
+        
+        
+        arr.append((X,abs(Y-9)))
+        itm = in_s[Y][X]
+    
+    return arr
+
+in_s = [["X","X","X","S","X","X","X","X","X","X"],
+        ["X","X","X"," ","X","X","X","X","X","X"],
+        ["X","X","X"," "," ","X"," "," "," ","X"],
+        ["X","X","X","X"," "," "," ","X"," ","X"],
+        ["X","X","X","X","X","X","X","X"," ","X"],
+        ["X","X","X","X","X"," "," "," "," ","X"],
+        ["X","X","X","X"," "," ","X","X","X","X"],
+        ["X","X","X","X"," ","X","X","X","X","X"],
+        ["X","X","X","X"," ","X","X","X","X","X"],
+        ["X","X","X","X","E","X","X","X","X","X"]]
+
+print(pathway(in_s))
+    
+
+# ------------------------ Letter-Digit Encoder ------------------------
+
+
+def letterDig(in_s):
+
+    out_s = ""
+    
+    LETTERS = "aBcDeFgHi"
+    
+    for i in in_s:
+        if i.isalpha(): # is a letter
+            out_s+=str(ord(i))
+        else:
+            if int(i)==0:
+                out_s+="Z"
+            else:
+                out_s+=LETTERS[int(i)-1]
+    
+    return out_s
+
+in_s = "2fHj1458oMaa030"
+print(letterDig(in_s))
+
+# ------------------------ Safe for Human Consumption ------------------------
+
+
+def safeForConsumption(ingredients, calories, plastics, sodium):
+    
+    VEG = ["Lettuce","Tomatoes","Pickles","Onions"] # A list of vegetable constants
+    MP = plastics * 100
+    
+    safeC = False # for the calories
+    safeP = False # for the plastics
+    safeS = False # for the sodium
+    
+    
+    # Get the amount of vegetables in ingredient list 
+    vCount = sum(itm in VEG for itm in ingredients)
+    
+    # Monstrous if trees incoming >.<
+    
+    # Calorie conditions for it to be safe
+    if (calories < 1200):
+        safeC = True
+    elif (1200 <= calories <= 2300 and vCount >= 1):
+        safeC = True
+    elif (2300 < calories < 4600 and vCount >= 2):
+        safeC = True
+    elif (4600 <= calories <= 6800 and vCount >= 3):
+        safeC = True
+    
+    # Microplastic conditions for it to be safe
+    if (MP < 16):
+        safeP = True
+    elif (16 <= MP <= 23 and vCount >= 1):
+        safeP = True
+    elif (23 < MP < 46 and vCount >= 1):
+        if ("Beef" in ingredients or "Chicken" in ingredients):
+            safeP = True
+        else:
+            safeP = False
+    
+    # Sodium conditions for it to be safe
+    if (sodium <= 2300):
+        safeS = True
+    elif (sodium > 2300):
+        if ("Beef" in ingredients or "Pork" in ingredients):
+            safeS = True
+        else:
+            safeS = False
+    
+    # Return statement
+    return (safeC and safeP and safeS)
+
+
+ingredients = ["Chicken", "Pork", "Lettuce", "Onions", "Cheese"]
+calories = 4300
+plastics = 0.41
+sodium = 2300
+
+print("Safe for human consumption?: " + str(safeForConsumption(ingredients, calories, plastics, sodium)))
+
+# ------------------------ Elevation Mapping ------------------------
+
+
+def elevationMapping(elevations, N,M):
+    
+    Y = 0
+    X = 0
+    arr = []
+    itm = ""
+    height = 0
+    
+    while len(arr) < M:
+        
+        itm = elevations[Y][X]
+        
+        if itm == "^":
+            height+=1
+        
+        # once ground is reached reset and increment X else keep going down
+        if Y == N: 
+            Y = 0  
+            X+=1
+            arr.append(height)
+            height = 0
+        else:
+            Y+=1  
+    
+    return arr
+
+in_s = [[" ","^"," "," "," "," "," "," "," "," "],
+        ["^","^"," "," "," "," ","^"," "," "," "],
+        ["^","^"," "," "," "," ","^"," "," "," "],
+        ["^","^","^"," "," "," ","^","^"," "," "],
+        ["^","^","^","^"," ","^","^","^","^"," "],
+        ["-","-","-","-","-","-","-","-","-","-"]]
+
+print(elevationMapping(in_s, 5,10))
